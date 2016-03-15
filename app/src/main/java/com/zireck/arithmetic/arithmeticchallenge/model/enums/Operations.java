@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public enum Operations implements OperationControl {
+
     ADD {
         public boolean isPossible(int result, int steps, Operations lastMove) {
             return (lastMove != Operations.ADD && lastMove != Operations.SUBTRACT);

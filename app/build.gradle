@@ -19,8 +19,16 @@ android {
     }
 }
 
+repositories {
+    mavenCentral()
+}
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:23.2.1'
+    compile 'com.android.support:design:23.2.1'
+    compile 'com.jakewharton:butterknife:7.0.1'
+    compile 'com.mikhaellopez:circularprogressbar:1.1.1'
+    compile 'fr.avianey.com.viewpagerindicator:library:2.4.1.1@aar'
 }
