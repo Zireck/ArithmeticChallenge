@@ -7,74 +7,69 @@ import com.zireck.arithmetic.arithmeticchallenge.model.levels.LevelFactory;
 import com.zireck.arithmetic.arithmeticchallenge.util.MathUtils;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 public class Challenge {
 
-    private Difficulty difficulty;
     private Level level;
     private List<Move> moves;
+    private int initialValue;
     private int result;
 
     public Challenge(Difficulty difficulty) {
-        this.difficulty = difficulty;
         this.level = LevelFactory.getLevel(difficulty);
 
         makeMoves();
     }
 
-    public void generateChallenge() {
-        System.out.println("hello world");
-        Operations suma = Operations.ADD;
-        System.out.println(suma.toString());
+    public Difficulty getDifficulty() {
+        return level.getDifficulty();
+    }
+
+    public List<Move> getMoves() {
+        return moves;
+    }
+
+    public int getInitialValue() {
+        return initialValue;
+    }
+
+    public int getResult() {
+        return result;
     }
 
     private void makeMoves() {
-        moves = new ArrayList<>();
+        initializeMoves();
 
-        result = MathUtils.generateRandomNumber(level.getStartMin(), level.getStartMax());
+        initialValue = MathUtils.generateRandomNumber(level.getStartMin(), level.getStartMax());
+        result = initialValue;
+
         int steps = level.getSteps();
+        Operations lastMove = null;
 
         while (steps > 0) {
+            level.calculatePossibleOperations(result, steps, lastMove);
 
-            Operations operation = weighted_choice(level.getMoves());
+            if (level.noMorePossibleOperations()) {
+                throw new IllegalStateException("No more possible operations.");
+            }
+
+            Operations operation = level.weightedChoice();
             List<Move> newMoves = operation.getMoves(result);
             moves.addAll(newMoves);
 
             steps -= newMoves.size();
             result = moves.get(moves.size() - 1).getResult();
-
+            lastMove = moves.get(moves.size() - 1).getOperation();
         }
-
     }
 
-    // TODO: these two methods go in Level.class
-    private List<Operations> getPossibleOperations(int result, int steps, Operations lastMove) {
-
-        return new ArrayList<>();
-    }
-
-    private Operations weighted_choice(Map<Operations, Integer> possibles) {
-        int t = 0;
-        Operations keep = null;
-
-        Iterator iterator = possibles.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<Operations, Integer> pair = (Map.Entry<Operations, Integer>) iterator.next();
-            Operations clave = pair.getKey();
-            int w = pair.getValue();
-            int p = w / (t+w);
-
-            if (keep == null || Math.random() < p) {
-                keep = clave;
-            }
-
-            t += w;
+    private void initializeMoves() {
+        if (moves == null) {
+            moves = new ArrayList<>();
         }
 
-        return keep;
+        moves.clear();
     }
 
 }
