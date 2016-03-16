@@ -4,41 +4,87 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/easy"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.zireck.arithmetic.arithmeticchallenge.view.activity.GameActivity"
     tools:showIn="@layout/activity_game">
 
-    <android.support.v4.view.ViewPager
-        android:id="@+id/viewpager_moves"
-        android:layout_width="match_parent"
-        android:layout_height="320dp"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="24dp"
-        android:layout_marginLeft="48dp"
-        android:layout_marginRight="48dp"
-        android:background="@color/easy"/>
-
-    <com.mikhaellopez.circularprogressbar.CircularProgressBar
-        android:id="@+id/circular_progress_bar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="24dp"
-        android:layout_marginLeft="48dp"
-        android:layout_marginRight="48dp"
-        app:cpb_background_progressbar_color="#FFCDD2"
-        app:cpb_background_progressbar_width="5dp"
-        app:cpb_progressbar_color="#F44336"
-        app:cpb_progressbar_width="10dp" />
-
-    <com.viewpagerindicator.CirclePageIndicator
-        android:id="@+id/indicator"
+    <RelativeLayout
+        android:id="@+id/layout_top"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/circular_progress_bar"
-        android:layout_marginTop="24dp"
-        android:padding="10dip" />
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"
+        android:layout_marginLeft="48dp"
+        android:layout_marginRight="48dp">
+
+        <android.support.v4.view.ViewPager
+            android:id="@+id/viewpager_moves"
+            android:layout_width="match_parent"
+            android:layout_height="320dp"
+            android:layout_margin="8dp"
+            android:layout_centerInParent="true"
+            android:visibility="invisible"/>
+
+        <TextView
+            android:id="@+id/press_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="press start"
+            android:textSize="40sp"
+            android:textColor="@color/white"
+            android:fontFamily="sans-serif-thin"/>
+
+        <com.mikhaellopez.circularprogressbar.CircularProgressBar
+            android:id="@+id/circular_progress_bar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            app:cpb_background_progressbar_color="#FFCDD2"
+            app:cpb_background_progressbar_width="5dp"
+            app:cpb_progressbar_color="#F44336"
+            app:cpb_progressbar_width="10dp" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/layout_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/layout_top"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="48dp"
+        android:layout_marginRight="48dp">
+
+        <com.viewpagerindicator.CirclePageIndicator
+            android:id="@+id/indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:padding="10dip" />
+
+        <ImageView
+            android:id="@+id/previous"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            android:src="@drawable/ic_chevron_left_white_18dp"
+            style="?android:borderlessButtonStyle"/>
+
+        <ImageView
+            android:id="@+id/next"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:src="@drawable/ic_chevron_right_white_18dp"
+            style="?android:borderlessButtonStyle"/>
+
+    </RelativeLayout>
 
 </RelativeLayout>

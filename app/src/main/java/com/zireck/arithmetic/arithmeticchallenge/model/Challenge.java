@@ -21,7 +21,9 @@ public class Challenge {
         this.difficulty = difficulty;
         this.level = LevelFactory.getLevel(difficulty);
 
-        while (!makeMoves() || moves.size() < level.getSteps());
+        while (!makeMoves() || moves.size() < level.getSteps()) {
+            System.out.println("couldn't generate challenge");
+        }
     }
 
     public Difficulty getDifficulty() {
