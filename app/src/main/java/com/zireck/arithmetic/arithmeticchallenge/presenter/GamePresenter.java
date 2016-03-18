@@ -1,7 +1,9 @@
 package com.zireck.arithmetic.arithmeticchallenge.presenter;
 
+import android.os.CountDownTimer;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 
 import com.zireck.arithmetic.arithmeticchallenge.model.Challenge;
 import com.zireck.arithmetic.arithmeticchallenge.model.Move;
@@ -10,6 +12,7 @@ import com.zireck.arithmetic.arithmeticchallenge.model.enums.Difficulty;
 import com.zireck.arithmetic.arithmeticchallenge.model.enums.GameState;
 import com.zireck.arithmetic.arithmeticchallenge.view.GameView;
 import com.zireck.arithmetic.arithmeticchallenge.view.View;
+import com.zireck.arithmetic.arithmeticchallenge.view.fragment.InitialValueFragment;
 import com.zireck.arithmetic.arithmeticchallenge.view.fragment.MoveFragment;
 import com.zireck.arithmetic.arithmeticchallenge.view.fragment.ResultFragment;
 
@@ -26,6 +29,8 @@ public class GamePresenter implements Presenter {
 
     private String mResult;
 
+    private CountDownTimer mCountDownTimer;
+
     public GamePresenter(Difficulty difficulty) {
         mDifficulty = difficulty;
         mGameState = GameState.STOPPED;
@@ -35,6 +40,7 @@ public class GamePresenter implements Presenter {
     @Override
     public <T extends View> void setView(@NonNull T view) {
         mView = ((GameView) view);
+        mView.setColor(mDifficulty.getColor());
         generateNewChallenge();
     }
 
@@ -53,6 +59,14 @@ public class GamePresenter implements Presenter {
 
     }
 
+    public void setDifficulty(Difficulty difficulty) {
+        stopGame();
+
+        mDifficulty = difficulty;
+        generateNewChallenge();
+        mView.setColor(difficulty.getColor());
+    }
+
     public void pageSelected(int position) {
         if (position == mFragments.size() - 1) {
             mResult = new String();
@@ -65,10 +79,8 @@ public class GamePresenter implements Presenter {
 
     public void onClickFab() {
         if (mGameState == GameState.STOPPED) {
-            mGameState = GameState.PLAYING;
             startGame();
         } else {
-            mGameState = GameState.STOPPED;
             stopGame();
         }
     }
@@ -90,21 +102,68 @@ public class GamePresenter implements Presenter {
             mView.notify("Error: Number too big.");
             return;
         }
+
         mResult += input;
         mView.setResult(mResult);
+
+        checkIfValidResult();
+    }
+
+    private void checkIfValidResult() {
+        if (mResult != null && !TextUtils.isEmpty(mResult)) {
+            int result = Integer.parseInt(mResult);
+            if (result == mChallenge.getResult()) {
+                mView.notify("You win!");
+                stopGame();
+            }
+        }
     }
 
     private void startGame() {
-        // TODO: start time
+        mGameState = GameState.PLAYING;
 
         mResult = new String();
 
         generateNewChallenge();
         mView.startGame();
+
+        System.out.println("k9d3 result = " + mChallenge.getResult());
+
+        mCountDownTimer = new CountDownTimer(30000, 100) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                String timeLeft = String.valueOf(millisUntilFinished / 100);
+                if (timeLeft.length() < 2) {
+                    timeLeft = "0." + timeLeft;
+                } else if (timeLeft.length() < 3) {
+                    timeLeft = timeLeft.substring(0, 1) + "." + timeLeft.substring(1, timeLeft.length());
+                } else {
+                    timeLeft = timeLeft.substring(0, 2) + "." + timeLeft.substring(2, timeLeft.length());
+                }
+
+                mView.updateTimeLeft(timeLeft + "s");
+
+                int seconds = (int) (millisUntilFinished / 100);
+                float percentage = seconds * 100 / 300;
+                mView.updateProgress(percentage);
+            }
+
+            @Override
+            public void onFinish() {
+                mView.updateTimeLeft("0.0s");
+                mView.updateProgress(0);
+                mView.notify("Game over!");
+                stopGame();
+            }
+        }.start();
     }
 
     private void stopGame() {
-        // TODO: stop time
+        mGameState = GameState.STOPPED;
+
+        if (mCountDownTimer != null) {
+            mCountDownTimer.cancel();
+        }
 
         mView.stopGame();
     }
@@ -114,10 +173,11 @@ public class GamePresenter implements Presenter {
 
         mFragments = new ArrayList<>();
         mChallenge = new Challenge(Difficulty.EASY);
+        mFragments.add(InitialValueFragment.newInstance(mChallenge.getInitialValue(), mDifficulty.getColor()));
         for (Move move : mChallenge.getMoves()) {
             mFragments.add(MoveFragment.newInstance(move));
         }
-        mFragments.add(ResultFragment.newInstance());
+        mFragments.add(ResultFragment.newInstance(mDifficulty.getColor()));
 
         mView.initViewPager(mFragments);
     }

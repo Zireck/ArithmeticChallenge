@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/easy"
+    android:background="#303030"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.zireck.arithmetic.arithmeticchallenge.view.activity.GameActivity"
     tools:showIn="@layout/activity_game">
@@ -42,10 +42,35 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_centerInParent="true"
-            app:cpb_background_progressbar_color="#FFCDD2"
-            app:cpb_background_progressbar_width="5dp"
-            app:cpb_progressbar_color="#F44336"
-            app:cpb_progressbar_width="10dp" />
+            app:cpb_background_progressbar_color="@color/white"
+            app:cpb_background_progressbar_width="8dp"
+            app:cpb_progressbar_color="@color/easy"
+            app:cpb_progressbar_width="8dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="320dp"
+            android:layout_centerInParent="true"
+            android:orientation="vertical"
+            android:weightSum="100">
+
+            <View
+                android:visibility="invisible"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="50"/>
+
+            <TextView
+                android:id="@+id/time_left"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="50"
+                android:gravity="center"
+                android:text="30.0s"
+                android:textColor="@color/white"
+                android:fontFamily="sans-serif-light"/>
+
+        </LinearLayout>
 
     </RelativeLayout>
 
@@ -63,7 +88,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:padding="10dip" />
+            android:padding="10dip"
+            app:fillColor="@color/easy"
+            app:strokeColor="@color/easy"/>
 
         <ImageView
             android:id="@+id/previous"
@@ -86,5 +113,17 @@
             style="?android:borderlessButtonStyle"/>
 
     </RelativeLayout>
+
+    <TextView
+        android:visibility="invisible"
+        android:id="@+id/win_fail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/layout_bottom"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="32dp"
+        android:textSize="48sp"
+        android:textColor="@color/easy"
+        android:fontFamily="sans-serif-thin"/>
 
 </RelativeLayout>

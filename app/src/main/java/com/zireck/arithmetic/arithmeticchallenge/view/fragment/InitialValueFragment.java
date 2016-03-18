@@ -9,28 +9,31 @@ import com.zireck.arithmetic.arithmeticchallenge.R;
 
 import butterknife.Bind;
 
-public class ResultFragment extends BaseFragment {
+public class InitialValueFragment extends BaseFragment {
 
+    private static final String EXTRA_INITIAL_VALUE = "initial_value";
     private static final String EXTRA_TEXT_COLOR = "text_color";
 
     @Bind(R.id.message) TextView mMessage;
-    @Bind(R.id.value) TextView mResult;
+    @Bind(R.id.value) TextView mValue;
 
-    public static ResultFragment newInstance(int textColor) {
+    private int mInitialValue;
+
+    public static InitialValueFragment newInstance(int initialValue, int textColor) {
         Bundle bundle = new Bundle();
+        bundle.putInt(EXTRA_INITIAL_VALUE, initialValue);
         bundle.putInt(EXTRA_TEXT_COLOR, textColor);
 
-        ResultFragment resultFragment = new ResultFragment();
-        resultFragment.setArguments(bundle);
+        InitialValueFragment initialValueFragment = new InitialValueFragment();
+        initialValueFragment.setArguments(bundle);
 
-        return resultFragment;
+        return initialValueFragment;
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mMessage.setText("type your answer:");
-        mResult.setText("-");
+        mMessage.setText("initial value");
     }
 
     @Override
@@ -39,24 +42,19 @@ public class ResultFragment extends BaseFragment {
         initialize();
     }
 
-    @Override
-    protected int getFragmentLayout() {
-        return R.layout.fragment_result;
-    }
-
     private void initialize() {
         if (getArguments() == null) {
             throw new IllegalArgumentException("InitialValueFragment has to be launched using a valid initial value as extra");
         }
 
         mMessage.setTextColor(getResources().getColor(getArguments().getInt(EXTRA_TEXT_COLOR)));
+
+        mInitialValue = getArguments().getInt(EXTRA_INITIAL_VALUE);
+        mValue.setText(String.valueOf(mInitialValue));
     }
 
-    public void updateResult(String result) {
-        if (result == null || result.length() <= 0) {
-            mResult.setText("-");
-        } else {
-            mResult.setText(result);
-        }
+    @Override
+    protected int getFragmentLayout() {
+        return R.layout.fragment_result;
     }
 }

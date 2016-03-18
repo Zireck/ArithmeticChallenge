@@ -1,18 +1,23 @@
 package com.zireck.arithmetic.arithmeticchallenge.view.activity;
 
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.mikhaellopez.circularprogressbar.CircularProgressBar;
 import com.viewpagerindicator.CirclePageIndicator;
 import com.zireck.arithmetic.arithmeticchallenge.R;
 import com.zireck.arithmetic.arithmeticchallenge.model.Challenge;
@@ -34,14 +39,20 @@ public class GameActivity extends AppCompatActivity implements GameView {
     private GamePresenter mPresenter;
 
     @Bind(R.id.toolbar) Toolbar mToolbar;
+    @Bind(R.id.time_left) TextView mTimeLeft;
+    @Bind(R.id.circular_progress_bar) CircularProgressBar mCircularProgressBar;
     @Bind(R.id.press_start)
     TextView mPressStart;
     @Bind(R.id.viewpager_moves)
     ViewPager mViewPagerMoves;
     @Bind(R.id.indicator)
     CirclePageIndicator mIndicator;
+    @Bind(R.id.previous)
+    ImageView mButtonPrevious;
+    @Bind(R.id.next) ImageView mButtonNext;
     @Bind(R.id.bottom_sheet)
     LinearLayout mBottomSheet;
+    @Bind(R.id.win_fail) TextView mWinFail;
 
     @Bind(R.id.fab) FloatingActionButton mFloatingActionButton;
     private BottomSheetBehavior mBottomSheetBehavior;
@@ -56,6 +67,10 @@ public class GameActivity extends AppCompatActivity implements GameView {
         ButterKnife.bind(this);
 
         setSupportActionBar(mToolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+
         mBottomSheetBehavior = BottomSheetBehavior.from(mBottomSheet);
         mBottomSheetBehavior.setHideable(false);
         mBottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
@@ -81,6 +96,10 @@ public class GameActivity extends AppCompatActivity implements GameView {
             }
         });
 
+        mCircularProgressBar.setProgress(100);
+        mButtonPrevious.setEnabled(false);
+        mButtonNext.setEnabled(false);
+
         // TODO: set difficulty
         mPresenter = new GamePresenter(Difficulty.EASY);
         mPresenter.setView(this);
@@ -101,6 +120,30 @@ public class GameActivity extends AppCompatActivity implements GameView {
 
             }
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.menu_game, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_difficulty_easy:
+                mPresenter.setDifficulty(Difficulty.EASY);
+                break;
+            case R.id.action_difficulty_medium:
+                mPresenter.setDifficulty(Difficulty.MEDIUM);
+                break;
+            case R.id.action_difficulty_hard:
+                mPresenter.setDifficulty(Difficulty.HARD);
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @OnClick(R.id.fab)
@@ -151,6 +194,8 @@ public class GameActivity extends AppCompatActivity implements GameView {
 
     @Override
     public void startGame() {
+        mWinFail.setVisibility(View.INVISIBLE);
+
         mFloatingActionButton.setImageResource(android.R.drawable.ic_media_pause);
 
         mPressStart.setVisibility(View.INVISIBLE);
@@ -158,18 +203,30 @@ public class GameActivity extends AppCompatActivity implements GameView {
         mViewPagerMoves.setCurrentItem(0);
         mViewPagerMoves.setEnabled(true);
         mViewPagerMoves.setVisibility(View.VISIBLE);
+        mIndicator.setEnabled(true);
+
+        mCircularProgressBar.setProgress(100);
+
+        mButtonPrevious.setEnabled(true);
+        mButtonNext.setEnabled(true);
     }
 
     @Override
     public void stopGame() {
+        mButtonPrevious.setEnabled(false);
+        mButtonNext.setEnabled(false);
+
         mFloatingActionButton.setImageResource(android.R.drawable.ic_media_play);
 
-
-        mViewPagerMoves.setEnabled(false);
         mViewPagerMoves.setVisibility(View.INVISIBLE);
         mViewPagerMoves.setCurrentItem(0);
+        mViewPagerMoves.setEnabled(false);
+        mIndicator.setEnabled(false);
 
         mPressStart.setVisibility(View.VISIBLE);
+
+        mTimeLeft.setText("30.0s");
+        mCircularProgressBar.setProgress(100);
     }
 
     @Override
@@ -203,6 +260,29 @@ public class GameActivity extends AppCompatActivity implements GameView {
 
     @Override
     public void notify(String message) {
-        Snackbar.make(findViewById(android.R.id.content), message, Snackbar.LENGTH_SHORT).show();
+        //Snackbar.make(findViewById(android.R.id.content), message, Snackbar.LENGTH_SHORT).show();
+        mWinFail.setVisibility(View.VISIBLE);
+        mWinFail.setText(message);
+    }
+
+    @Override
+    public void updateTimeLeft(String timeLeft) {
+        mTimeLeft.setText(timeLeft);
+    }
+
+    @Override
+    public void updateProgress(float progress) {
+        mCircularProgressBar.setProgress(progress);
+        //mCircularProgressBar.setProgressWithAnimation(progress, 500);
+    }
+
+    @Override
+    public void setColor(int color) {
+        mCircularProgressBar.setColor(getResources().getColor(color));
+        mIndicator.setFillColor(getResources().getColor(color));
+        mIndicator.setStrokeColor(getResources().getColor(color));
+        mFloatingActionButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(color)));
+        mBottomSheet.setBackgroundColor(getResources().getColor(color));
+        mWinFail.setTextColor(getResources().getColor(color));
     }
 }

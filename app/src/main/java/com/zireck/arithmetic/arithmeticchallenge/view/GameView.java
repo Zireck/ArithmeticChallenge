@@ -13,4 +13,7 @@ public interface GameView extends View {
     void setPage(int page);
     void setResult(String result);
     void notify(String message);
+    void updateTimeLeft(String timeLeft);
+    void updateProgress(float progress);
+    void setColor(int color);
 }

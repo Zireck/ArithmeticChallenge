@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_difficulty_easy"
+        android:checked="true"
+        android:orderInCategory="0"
+        android:title="Easy"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/action_difficulty_medium"
+        android:checked="false"
+        android:orderInCategory="2"
+        android:title="Medium"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/action_difficulty_hard"
+        android:checked="true"
+        android:orderInCategory="3"
+        android:title="Hard"
+        app:showAsAction="never"/>
+
+</menu>
