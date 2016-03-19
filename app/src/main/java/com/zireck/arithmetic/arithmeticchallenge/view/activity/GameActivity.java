@@ -1,10 +1,12 @@
 package com.zireck.arithmetic.arithmeticchallenge.view.activity;
 
 import android.content.res.ColorStateList;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatButton;
@@ -18,7 +20,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.mikhaellopez.circularprogressbar.CircularProgressBar;
-import com.viewpagerindicator.CirclePageIndicator;
 import com.zireck.arithmetic.arithmeticchallenge.R;
 import com.zireck.arithmetic.arithmeticchallenge.model.Challenge;
 import com.zireck.arithmetic.arithmeticchallenge.model.enums.BottomSheetInput;
@@ -26,6 +27,8 @@ import com.zireck.arithmetic.arithmeticchallenge.model.enums.Difficulty;
 import com.zireck.arithmetic.arithmeticchallenge.presenter.GamePresenter;
 import com.zireck.arithmetic.arithmeticchallenge.view.GameView;
 import com.zireck.arithmetic.arithmeticchallenge.view.adapter.MovesPagerAdapter;
+import com.zireck.arithmetic.arithmeticchallenge.view.custom.NonSwipeableCirclePageIndicator;
+import com.zireck.arithmetic.arithmeticchallenge.view.custom.NonSwipeableViewPager;
 import com.zireck.arithmetic.arithmeticchallenge.view.fragment.ResultFragment;
 
 import java.util.List;
@@ -44,9 +47,9 @@ public class GameActivity extends AppCompatActivity implements GameView {
     @Bind(R.id.press_start)
     TextView mPressStart;
     @Bind(R.id.viewpager_moves)
-    ViewPager mViewPagerMoves;
+    NonSwipeableViewPager mViewPagerMoves;
     @Bind(R.id.indicator)
-    CirclePageIndicator mIndicator;
+    NonSwipeableCirclePageIndicator mIndicator;
     @Bind(R.id.previous)
     ImageView mButtonPrevious;
     @Bind(R.id.next) ImageView mButtonNext;
@@ -70,29 +73,34 @@ public class GameActivity extends AppCompatActivity implements GameView {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-
         mBottomSheetBehavior = BottomSheetBehavior.from(mBottomSheet);
-        mBottomSheetBehavior.setHideable(false);
+        //mBottomSheetBehavior.setHideable(false);
         mBottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override
             public void onStateChanged(View bottomSheet, int newState) {
-                /*if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
-                    mViewPagerMoves.setCurrentItem(mViewPagerMoves.getCurrentItem()-1);
-                }*/
-
+                System.out.println("k9d3 new State: " + newState);
                 if (newState == BottomSheetBehavior.STATE_COLLAPSED && mViewPagerMoves.getCurrentItem() == mViewPagerMoves.getAdapter().getCount() - 1) {
-                    mViewPagerMoves.setCurrentItem(mViewPagerMoves.getAdapter().getCount() - 2);
-                    mPresenter.pageSelected(mViewPagerMoves.getAdapter().getCount() - 2);
+                    if (!mPresenter.isGameOver()) {
+                        mViewPagerMoves.setCurrentItem(mViewPagerMoves.getAdapter().getCount() - 2);
+                        mPresenter.pageSelected(mViewPagerMoves.getAdapter().getCount() - 2);
+                    }
                 } else if (newState == BottomSheetBehavior.STATE_DRAGGING && mViewPagerMoves.getCurrentItem() < mViewPagerMoves.getAdapter().getCount() - 1) {
-                    mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                    //mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                    stopInput();
                 } else if (newState == BottomSheetBehavior.STATE_DRAGGING && mViewPagerMoves.getCurrentItem() == mViewPagerMoves.getAdapter().getCount() - 1) {
-                    mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                    if (mPresenter.isGameOver()) {
+                        //mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                        stopInput();
+                    } else {
+                        //mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                        startInput();
+                    }
                 }
             }
 
             @Override
             public void onSlide(View bottomSheet, float slideOffset) {
-
+                System.out.println("k9d3 slides " + slideOffset);
             }
         });
 
@@ -157,7 +165,6 @@ public class GameActivity extends AppCompatActivity implements GameView {
     public void onClickBottomSheet(View view) {
         BottomSheetInput bottomSheetInput;
         if (view.getId() == R.id.backspace) {
-            //Toast.makeText(this, "Backspace", Toast.LENGTH_SHORT).show();
             mPresenter.bottomSheetInput(BottomSheetInput.BACKSPACE);
         } else if (view.getId() == R.id.collapse) {
             mPresenter.bottomSheetInput(BottomSheetInput.COLLAPSE);
@@ -184,12 +191,15 @@ public class GameActivity extends AppCompatActivity implements GameView {
     public void initViewPager(List<Fragment> fragments) {
         mPressStart.setVisibility(View.VISIBLE);
 
-        mViewPagerMoves.setEnabled(false);
+        mViewPagerMoves.setEnabledSwipe(false);
         mViewPagerMoves.setVisibility(View.INVISIBLE);
+        mIndicator.setEnabledSwipe(false);
 
         mMovesPagerAdapter = new MovesPagerAdapter(getSupportFragmentManager(), fragments);
         mViewPagerMoves.setAdapter(mMovesPagerAdapter);
         mIndicator.setViewPager(mViewPagerMoves);
+
+        mFloatingActionButton.show();
     }
 
     @Override
@@ -197,13 +207,14 @@ public class GameActivity extends AppCompatActivity implements GameView {
         mWinFail.setVisibility(View.INVISIBLE);
 
         mFloatingActionButton.setImageResource(android.R.drawable.ic_media_pause);
+        mFloatingActionButton.show();
 
         mPressStart.setVisibility(View.INVISIBLE);
 
         mViewPagerMoves.setCurrentItem(0);
-        mViewPagerMoves.setEnabled(true);
+        mViewPagerMoves.setEnabledSwipe(true);
         mViewPagerMoves.setVisibility(View.VISIBLE);
-        mIndicator.setEnabled(true);
+        mIndicator.setEnabledSwipe(true);
 
         mCircularProgressBar.setProgress(100);
 
@@ -213,16 +224,33 @@ public class GameActivity extends AppCompatActivity implements GameView {
 
     @Override
     public void stopGame() {
+        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+
+        mButtonPrevious.setEnabled(false);
+        mButtonNext.setEnabled(false);
+
+        mFloatingActionButton.setImageResource(android.R.drawable.ic_popup_sync);
+        mFloatingActionButton.show();
+
+        mViewPagerMoves.setVisibility(View.VISIBLE);
+        mViewPagerMoves.setEnabledSwipe(false);
+        mIndicator.setEnabledSwipe(false);
+    }
+
+    @Override
+    public void readyGame() {
         mButtonPrevious.setEnabled(false);
         mButtonNext.setEnabled(false);
 
         mFloatingActionButton.setImageResource(android.R.drawable.ic_media_play);
+        mFloatingActionButton.show();
 
-        mViewPagerMoves.setVisibility(View.INVISIBLE);
         mViewPagerMoves.setCurrentItem(0);
-        mViewPagerMoves.setEnabled(false);
-        mIndicator.setEnabled(false);
+        mViewPagerMoves.setEnabledSwipe(false);
+        mViewPagerMoves.setVisibility(View.INVISIBLE);
+        mIndicator.setEnabledSwipe(false);
 
+        mWinFail.setVisibility(View.INVISIBLE);
         mPressStart.setVisibility(View.VISIBLE);
 
         mTimeLeft.setText("30.0s");
@@ -277,12 +305,32 @@ public class GameActivity extends AppCompatActivity implements GameView {
     }
 
     @Override
-    public void setColor(int color) {
+    public void setColor(Difficulty difficulty) {
+
+        int color = difficulty.getColor();
         mCircularProgressBar.setColor(getResources().getColor(color));
         mIndicator.setFillColor(getResources().getColor(color));
         mIndicator.setStrokeColor(getResources().getColor(color));
         mFloatingActionButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(color)));
         mBottomSheet.setBackgroundColor(getResources().getColor(color));
         mWinFail.setTextColor(getResources().getColor(color));
+
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            int colorDarker = R.color.grey_3;
+            switch (difficulty) {
+                case EASY:
+                    colorDarker = R.color.easy_darker;
+                    break;
+                case MEDIUM:
+                    colorDarker = R.color.medium_darker;
+                    break;
+                case HARD:
+                    colorDarker = R.color.hard_darker;
+                    break;
+            }
+
+            getWindow().setStatusBarColor(ContextCompat.getColor(this, colorDarker));
+            getWindow().setNavigationBarColor(ContextCompat.getColor(this, colorDarker));
+        }
     }
 }

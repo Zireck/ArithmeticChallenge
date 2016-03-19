@@ -19,7 +19,7 @@
         android:layout_marginLeft="48dp"
         android:layout_marginRight="48dp">
 
-        <android.support.v4.view.ViewPager
+        <com.zireck.arithmetic.arithmeticchallenge.view.custom.NonSwipeableViewPager
             android:id="@+id/viewpager_moves"
             android:layout_width="match_parent"
             android:layout_height="320dp"
@@ -42,7 +42,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_centerInParent="true"
-            app:cpb_background_progressbar_color="@color/white"
+            app:cpb_background_progressbar_color="@color/grey_4"
             app:cpb_background_progressbar_width="8dp"
             app:cpb_progressbar_color="@color/easy"
             app:cpb_progressbar_width="8dp" />
@@ -83,7 +83,7 @@
         android:layout_marginLeft="48dp"
         android:layout_marginRight="48dp">
 
-        <com.viewpagerindicator.CirclePageIndicator
+        <com.zireck.arithmetic.arithmeticchallenge.view.custom.NonSwipeableCirclePageIndicator
             android:id="@+id/indicator"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

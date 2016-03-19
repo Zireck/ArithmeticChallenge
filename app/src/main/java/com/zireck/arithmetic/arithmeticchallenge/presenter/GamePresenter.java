@@ -33,14 +33,14 @@ public class GamePresenter implements Presenter {
 
     public GamePresenter(Difficulty difficulty) {
         mDifficulty = difficulty;
-        mGameState = GameState.STOPPED;
+        mGameState = GameState.READY;
         mResult = new String();
     }
 
     @Override
     public <T extends View> void setView(@NonNull T view) {
         mView = ((GameView) view);
-        mView.setColor(mDifficulty.getColor());
+        mView.setColor(mDifficulty);
         generateNewChallenge();
     }
 
@@ -59,12 +59,19 @@ public class GamePresenter implements Presenter {
 
     }
 
+    public boolean isGameOver() {
+        return mGameState != GameState.PLAYING;
+    }
+
     public void setDifficulty(Difficulty difficulty) {
         stopGame();
 
         mDifficulty = difficulty;
         generateNewChallenge();
-        mView.setColor(difficulty.getColor());
+        mView.setColor(difficulty);
+
+        mGameState = GameState.READY;
+        mView.readyGame();
     }
 
     public void pageSelected(int position) {
@@ -78,11 +85,20 @@ public class GamePresenter implements Presenter {
     }
 
     public void onClickFab() {
+        if (mGameState == GameState.READY) {
+            startGame();
+        } else if (mGameState == GameState.PLAYING) {
+            stopGame();
+        } else if (mGameState == GameState.STOPPED) {
+            readyGame();
+        }
+
+/*
         if (mGameState == GameState.STOPPED) {
             startGame();
         } else {
             stopGame();
-        }
+        }*/
     }
 
     public void bottomSheetInput(BottomSheetInput bottomSheetInput) {
@@ -166,6 +182,12 @@ public class GamePresenter implements Presenter {
         }
 
         mView.stopGame();
+    }
+
+    private void readyGame() {
+        mGameState = GameState.READY;
+
+        mView.readyGame();
     }
 
     private void generateNewChallenge() {
